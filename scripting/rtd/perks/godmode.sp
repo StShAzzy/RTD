@@ -23,6 +23,8 @@ int g_AffectWeapon[MAXPLAYERS+1];
 
 bool g_bGodActive = false;
 
+int cores[4][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 230, 0}};
+
 void ResetClientColor(int client) {
 	g_PlayerColor[client][0] = 255;
 	g_PlayerColor[client][1] = 255;
@@ -83,13 +85,6 @@ void Godmode_RemovePerk(int client){
 
 Action OneTimer(Handle time, int client)
 {
-	int cores[4][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 230, 0}};
-	/*int cores[4];
-	cores[0] = {r = 255, g = 0, b = 0};
-	cores[1] = {r = 0, g = 255, b = 0};
-	cores[2] = {r = 0, g = 0, b = 255};
-	cores[3] = {r = 255, g = 230, b = 0};
-	*/
 	if (g_bGodActive == false)
 	{
 		SetEntityRenderColor(client, 255, 255, 255, 255);
@@ -99,6 +94,7 @@ Action OneTimer(Handle time, int client)
 	SetEntityRenderColor(client, cores[random][0], cores[random][1], cores[random][2], 255);
 	return Plugin_Continue;
 }
+
 public Action Godmode_OnTakeDamage_NoSelf(int client, int &iAttacker){
 	return Plugin_Handled;
 }
@@ -139,3 +135,4 @@ void SetWeaponsRGBA(int client, RenderMode mode) {
 	if (!g_AffectWeapon[client]) {
 		return;
 	}
+}
