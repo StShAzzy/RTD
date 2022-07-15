@@ -21,6 +21,8 @@ int g_PlayerColor[MAXPLAYERS+1][4];
 //tells recurring rgba functions to skip weapon setting if true
 int g_AffectWeapon[MAXPLAYERS+1];
 
+bool g_bGodActive = false;
+
 void ResetClientColor(int client) {
 	g_PlayerColor[client][0] = 255;
 	g_PlayerColor[client][1] = 255;
@@ -43,10 +45,10 @@ void Godmode_ApplyPerk(int client, Perk perk){
 	float fParticleOffset[3] = {0.0, 0.0, 12.0};
 
 	SetEntCache(client, CreateParticle(client, GODMODE_PARTICLE, _, _, fParticleOffset));
-	
-	
-	SetEntityRenderColor(int client, int r = 255, int g = 255, int b = 255, int a = 255);
-
+	/*CreateTimer(1.0, TwoTimer, client);
+	CreateTimer(1.5, ThreeTimer, client);
+	CreateTimer(2.0, FourTimer, TIMER_REPEAT, client);*/
+	//SetEntityRenderColor(int client, int r = 255, int g = 255, int b = 255, int a = 255);
 	int iMode = perk.GetPrefCell("mode");
 	switch(iMode){
 		case -1: // no self damage
@@ -60,7 +62,8 @@ void Godmode_ApplyPerk(int client, Perk perk){
 	int iUber = perk.GetPrefCell("uber");
 	SetIntCache(client, iUber);
 	if(iUber) TF2_AddCondition(client, TFCond_UberchargedCanteen);
-
+	g_bGodActive = true;
+	CreateTimer(0.05, OneTimer, client, TIMER_REPEAT);
 	g_iInGodmode |= client;
 }
 
@@ -74,10 +77,28 @@ void Godmode_RemovePerk(int client){
 	ResetClientColor(client);
 	if(GetIntCacheBool(client))
 		TF2_RemoveCondition(client, TFCond_UberchargedCanteen);
-
+	g_bGodActive = false;
 	g_iInGodmode &= ~client;
 }
 
+Action OneTimer(Handle time, int client)
+{
+	int cores[4][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 230, 0}};
+	/*int cores[4];
+	cores[0] = {r = 255, g = 0, b = 0};
+	cores[1] = {r = 0, g = 255, b = 0};
+	cores[2] = {r = 0, g = 0, b = 255};
+	cores[3] = {r = 255, g = 230, b = 0};
+	*/
+	if (g_bGodActive == false)
+	{
+		SetEntityRenderColor(client, 255, 255, 255, 255);
+		return Plugin_Stop;
+	}
+	int random = GetRandomInt(0, 3);
+	SetEntityRenderColor(client, cores[random][0], cores[random][1], cores[random][2], 255);
+	return Plugin_Continue;
+}
 public Action Godmode_OnTakeDamage_NoSelf(int client, int &iAttacker){
 	return Plugin_Handled;
 }
@@ -93,3 +114,28 @@ public Action Godmode_OnTakeDamage_Pushback(int client, int &iAttacker){
 public Action Godmode_OnTakeDamage_Self(int client, int &iAttacker){
 	return client == iAttacker ? Plugin_Continue : Plugin_Handled;
 }
+
+void SetWearablesRGBA(int client, RenderMode mode) {
+	//only set wearable items for Team Fortress 2
+	if (g_GameType == GAME_TF2) {
+		SetWearablesRGBA_Impl(client, mode, "tf_wearable", "CTFWearable");
+		SetWearablesRGBA_Impl(client, mode, "tf_wearable_demoshield", "CTFWearableDemoShield");
+	}
+}
+
+void SetWearablesRGBA_Impl(int client, RenderMode mode, const char[] entClass, const char[] serverClass) {
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, entClass)) != -1) {
+		if (IsValidEntity(ent)) {
+			if (GetEntDataEnt2(ent, FindSendPropInfo(serverClass, "m_hOwnerEntity")) == client) {
+				SetEntityRenderMode(ent, mode);
+				SetEntityRenderColor(ent, g_PlayerColor[client][0], g_PlayerColor[client][1], g_PlayerColor[client][2], g_PlayerColor[client][3]);
+			}
+		}
+	}
+}
+
+void SetWeaponsRGBA(int client, RenderMode mode) {
+	if (!g_AffectWeapon[client]) {
+		return;
+	}
