@@ -16,8 +16,21 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//remembers players color/alpha settings
+int g_PlayerColor[MAXPLAYERS+1][4];
+//tells recurring rgba functions to skip weapon setting if true
+int g_AffectWeapon[MAXPLAYERS+1];
 
-#define GODMODE_PARTICLE "powerup_supernova_ready"
+void ResetClientColor(int client) {
+	g_PlayerColor[client][0] = 255;
+	g_PlayerColor[client][1] = 255;
+	g_PlayerColor[client][2] = 255;
+	g_PlayerColor[client][3] = 255;
+
+	g_AffectWeapon[client] = true;
+}
+
+#define GODMODE_PARTICLE "utaunt_twinkling_goldsilver_parent"
 
 int g_iInGodmode = 0;
 
@@ -30,6 +43,9 @@ void Godmode_ApplyPerk(int client, Perk perk){
 	float fParticleOffset[3] = {0.0, 0.0, 12.0};
 
 	SetEntCache(client, CreateParticle(client, GODMODE_PARTICLE, _, _, fParticleOffset));
+	
+	
+	SetEntityRenderColor(int client, int r = 255, int g = 255, int b = 255, int a = 255);
 
 	int iMode = perk.GetPrefCell("mode");
 	switch(iMode){
@@ -55,6 +71,7 @@ void Godmode_RemovePerk(int client){
 	SDKUnhook(client, SDKHook_OnTakeDamage, Godmode_OnTakeDamage_Pushback);
 	SDKUnhook(client, SDKHook_OnTakeDamage, Godmode_OnTakeDamage_Self);
 
+	ResetClientColor(client);
 	if(GetIntCacheBool(client))
 		TF2_RemoveCondition(client, TFCond_UberchargedCanteen);
 

@@ -74,7 +74,7 @@
 		"de"	"Deine Anziehungskraft wurde zu einer niedriegen Schwerkraft gesetzt."
 		"chi"	"你的重力降低."
 		"ru"	"Ваша гравитация является нулевой."
-		"pt"	"Sua gravidade ficou baixa."
+		"pt"	"Sua gravidade foi abaixada."
 	}
 
 	"RTD2_Desc_fullubercharge"
@@ -85,7 +85,7 @@
 		"de"	"Dein Übercharge wurde aufgeladen."
 		"chi"	"你的 Uber 能量被蓄满."
 		"ru"	"Ваш Убер-заряд был заряжен на полную."
-		"pt"	"Sua ÜberCarga foi preenchida completamente."
+		"pt"	"Pop it, Don't Drop it!"
 	}
 
 	"RTD2_Desc_invisibility"
