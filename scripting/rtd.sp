@@ -33,6 +33,7 @@
 #include <tf2_stocks>
 #include <tf2attributes>
 #include <entity_prop_stocks>
+#include <stocksoup/tf/tempents_stocks>
 
 #undef REQUIRE_PLUGIN
 #tryinclude <updater>

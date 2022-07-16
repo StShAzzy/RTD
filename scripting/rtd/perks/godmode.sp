@@ -44,13 +44,16 @@ public void Godmode_Call(int client, Perk perk, bool bApply){
 }
 
 void Godmode_ApplyPerk(int client, Perk perk){
-	float fParticleOffset[3] = {0.0, 0.0, 12.0};
+	//float fParticleOffset[3] = {0.0, 0.0, 12.0};
 
-	SetEntCache(client, CreateParticle(client, GODMODE_PARTICLE, _, _, fParticleOffset));
-	/*CreateTimer(1.0, TwoTimer, client);
-	CreateTimer(1.5, ThreeTimer, client);
-	CreateTimer(2.0, FourTimer, TIMER_REPEAT, client);*/
-	//SetEntityRenderColor(int client, int r = 255, int g = 255, int b = 255, int a = 255);
+	//SetEntCache(client, CreateParticle(client, GODMODE_PARTICLE, _, _, fParticleOffset));
+	float clientOrigin[3];
+	GetEntPropVector(client, Prop_Send, "m_vecOrigin", clientOrigin);
+	float startPosition[] = { 0.0, 0.0, -40.0 };
+	TE_SetupTFParticleEffect(GODMODE_PARTICLE, clientOrigin, startPosition, _, client, PATTACH_ABSORIGIN_FOLLOW);
+	TE_SendToAll();
+	
+
 	int iMode = perk.GetPrefCell("mode");
 	switch(iMode){
 		case -1: // no self damage
@@ -65,12 +68,26 @@ void Godmode_ApplyPerk(int client, Perk perk){
 	SetIntCache(client, iUber);
 	if(iUber) TF2_AddCondition(client, TFCond_UberchargedCanteen);
 	g_bGodActive = true;
-	CreateTimer(0.05, OneTimer, client, TIMER_REPEAT);
+	CreateTimer(0.01, OneTimer, client, TIMER_REPEAT);
 	g_iInGodmode |= client;
 }
 
 void Godmode_RemovePerk(int client){
 	KillEntCache(client);
+
+	TE_SetupTFParticleEffect("nutsnbolts_upgrade", NULL_VECTOR, .entity = client, .bResetParticles = true);
+	TE_SendToAll();
+
+	/*static int ParticleEffectStop = INVALID_STRING_INDEX;
+  	if(ParticleEffectStop == INVALID_STRING_INDEX) {
+    int EffectDispatch = FindStringTable("EffectDispatch");
+    ParticleEffectStop = FindStringIndex(EffectDispatch, "ParticleEffectStop");
+  		}
+
+  	TE_Start("EffectDispatch");
+	TE_WriteNum("m_iEffectName", ParticleEffectStop);
+  	TE_WriteNum("entindex", client);
+  	TE_SendToAll();*/
 
 	SDKUnhook(client, SDKHook_OnTakeDamage, Godmode_OnTakeDamage_NoSelf);
 	SDKUnhook(client, SDKHook_OnTakeDamage, Godmode_OnTakeDamage_Pushback);
@@ -91,6 +108,12 @@ Action OneTimer(Handle time, int client)
 		return Plugin_Stop;
 	}
 	int random = GetRandomInt(0, 3);
+	/*int weapon = GetPlayerWeaponSlot(client, Prop_Send, "m_hActiveWeapon"); {
+		if(IsValidEntity(weapon)) {
+		SetEntityRenderColor(weapon, cores[random][0], cores[random][1], cores[random][2], 255);
+		}
+	}*/
+
 	SetEntityRenderColor(client, cores[random][0], cores[random][1], cores[random][2], 255);
 	return Plugin_Continue;
 }
@@ -111,7 +134,7 @@ public Action Godmode_OnTakeDamage_Self(int client, int &iAttacker){
 	return client == iAttacker ? Plugin_Continue : Plugin_Handled;
 }
 
-void SetWearablesRGBA(int client, RenderMode mode) {
+/*void SetWearablesRGBA(int client, RenderMode mode) {
 	//only set wearable items for Team Fortress 2
 	if (g_GameType == GAME_TF2) {
 		SetWearablesRGBA_Impl(client, mode, "tf_wearable", "CTFWearable");
@@ -136,3 +159,4 @@ void SetWeaponsRGBA(int client, RenderMode mode) {
 		return;
 	}
 }
+*/
