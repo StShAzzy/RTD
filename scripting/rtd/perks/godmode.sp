@@ -17,24 +17,18 @@
 */
 
 //remembers players color/alpha settings
-int g_PlayerColor[MAXPLAYERS+1][4];
 //tells recurring rgba functions to skip weapon setting if true
-int g_AffectWeapon[MAXPLAYERS+1];
 
 bool g_bGodActive = false;
 
-int cores[4][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 230, 0}};
+int cores[6][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 230, 0}, {255, 162, 0}, {174, 0 ,255}};
 
 void ResetClientColor(int client) {
-	g_PlayerColor[client][0] = 255;
-	g_PlayerColor[client][1] = 255;
-	g_PlayerColor[client][2] = 255;
-	g_PlayerColor[client][3] = 255;
-
-	g_AffectWeapon[client] = true;
+	SetEntityRenderColor(client, 255, 255, 255, 255);
 }
 
 #define GODMODE_PARTICLE "utaunt_twinkling_goldsilver_parent"
+//#define GODMODE_PARTICLE "utaunt_twinkling_rgb_parent"
 
 int g_iInGodmode = 0;
 
@@ -104,10 +98,10 @@ Action OneTimer(Handle time, int client)
 {
 	if (g_bGodActive == false)
 	{
-		SetEntityRenderColor(client, 255, 255, 255, 255);
+		ResetClientColor(client);
 		return Plugin_Stop;
 	}
-	int random = GetRandomInt(0, 3);
+	int random = GetRandomInt(0, 5);
 	/*int weapon = GetPlayerWeaponSlot(client, Prop_Send, "m_hActiveWeapon"); {
 		if(IsValidEntity(weapon)) {
 		SetEntityRenderColor(weapon, cores[random][0], cores[random][1], cores[random][2], 255);
